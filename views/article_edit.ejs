@@ -1,4 +1,4 @@
-<% this.title = article.id ? '编辑帖子' : '发表帖子'; %>
+<% this.title = article.id ? 'Sửa bài viết' : 'Đăng bài viết'; %>
 <% include header %>
 <style type="text/css">
     .am-panel-title{
@@ -8,17 +8,17 @@
 <div class="padding">
   <form class="" method="post">
     <div class="ui top attached tabular menu">
-      <a class="item active" data-tab="edit">编辑</a>
-      <a class="item" data-tab="preview" id="preview_tab">预览</a>
+      <a class="item active" data-tab="edit">Chỉnh sửa</a>
+      <a class="item" data-tab="preview" id="preview_tab">Xem trước</a>
     </div>
     <div class="ui bottom attached tab segment active" data-tab="edit">
       <div class="ui form">
         <div class="field">
-          <label for="title">标题</label>
+          <label for="title">Tiêu đề</label>
           <input type="text" id="title" name="title" value="<%= article.title %>">
         </div>
         <div class="field">
-          <label for="content">内容</label>
+          <label for="content">Nội dung</label>
           <textarea rows="15" id="content" name="content" class="markdown-edit"><%= article.content %></textarea>
         </div>
       </div>
@@ -26,8 +26,8 @@
     <% if (user && user.is_admin) { %>
         <div class="ui <% if (article.is_notice) { %>checked <% } %>checkbox" style="margin-top: 15px; ">
           <input <% if (article.is_notice) { %>checked=""<% } %> name="is_notice" type="checkbox">
-          <label><strong>公告</strong></label>
-          <p style="margin-top: 5px; ">选择后将显示在首页公告栏。</p>
+          <label><strong>Thông báo</strong></label>
+          <p style="margin-top: 5px; ">Bài viết sẽ hiển thị trên bảng tin trang chủ.</p>
         </div>
       <% } %>
     </div>
@@ -37,7 +37,7 @@
     </div>
     <div style="text-align: center; ">
     <button id="submit_button" type="submit" class="ui labeled submit icon button">
-      <i class="icon edit"></i> 提交
+      <i class="icon edit"></i> Xác nhận
     </button>
     </div>
   </form>

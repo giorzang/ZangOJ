@@ -1,15 +1,15 @@
-<% this.title = '提交记录' %>
+<% this.title = 'Đánh giá' %>
 <% include header %>
 <% include util %>
 <script src="<%- lib('textfit/2.3.1/textFit.min.js') %>"></script>
 <div class="padding">
   <% if (displayConfig.inContest) { %>
     <div class="ui large info message">
-      <div class="ui header">比赛 - <%= contest.title %></div>
+      <div class="ui header">Cuộc thi - <%= contest.title %></div>
       <% if (displayConfig.showOthers) { %>
-        <p>您可以看到其他人的提交。
+        <p>Bạn có thể xem các bài nộp của người khác.
       <% } else { %>
-        <p>您只能看到自己的提交。</p>
+        <p>Bạn chỉ có thể xem các bài nộp của mình.</p>
       <% } %>
     </div>
   <% } %>
@@ -17,28 +17,28 @@
   <form action="<%= syzoj.utils.makeUrl(displayConfig.inContest ? ['contest', contest.id, 'submissions'] : ['submissions']) %>" class="ui mini form" method="get" role="form" id="form">
     <input type="hidden" name="contest" value="<%= form.contest %>" />
     <div class="inline fields" style="margin-bottom: 25px; white-space: nowrap; ">
-      <label style="font-size: 1.2em; margin-right: 1px; ">题目：</label>
+      <label style="font-size: 1.2em; margin-right: 1px; ">ID bài tập：</label>
       <div class="field"><input name="problem_id" style="width: 50px; " type="text" value="<%= form.problem_id %>"></div>
       <% if (displayConfig.showOthers) { %>
-        <label style="font-size: 1.2em; margin-right: 1px; ">提交者：</label>
+        <label style="font-size: 1.2em; margin-right: 1px; ">Người nộp：</label>
         <div class="field"><input name="submitter" style="width: 100px; " type="text" value="<%= form.submitter %>"></div>
       <% } %>
       <% if (displayConfig.showScore) { %>
-        <label style="font-size: 1.2em; margin-right: 1px; ">分数：</label>
+        <label style="font-size: 1.2em; margin-right: 1px; ">Điểm：</label>
         <div class="field" style="padding-right: 6px; "><input name="min_score" style="width: 45px; " type="text" value="<%= form.min_score || 0 %>"></div>
         <label style="font-size: 1.2em; margin-right: 7px; ">～</label>
         <div class="field"><input name="max_score" style="width: 45px; " type="text" value="<%= form.max_score || 100 %>"></div>
       <% } %>
-      <label style="font-size: 1.2em; margin-right: 1px; ">语言：</label>
+      <label style="font-size: 1.2em; margin-right: 1px; ">Ngôn ngữ：</label>
       <div class="field">
         <div class="ui fluid selection dropdown" id="select_language" style="width: 110px; ">
           <input type="hidden" name="language" value="<%= form.language %>">
           <i class="dropdown icon"></i>
           <div class="default text"></div>
           <div class="menu">
-            <div class="item" data-value=""><b>不限</b></div>
-            <div class="item" data-value="submit-answer"><b>提交答案</b></div>
-            <div class="item" data-value="non-submit-answer"><b>非提交答案</b></div>
+            <div class="item" data-value=""><b>Tất cả</b></div>
+            <div class="item" data-value="submit-answer"><b>Nộp đáp án</b></div>
+            <div class="item" data-value="non-submit-answer"><b>Không nộp đáp án</b></div>
             <% for (let lang of syzoj.config.filter_enabled_languages) { %>
               <div style="font-size: 12.5px; " class="item" data-value="<%= lang %>"><b><%= syzoj.languages[lang].show %></b></div>
             <% } %>
@@ -46,14 +46,14 @@
         </div>
       </div>
       <% if (displayConfig.showResult) { %>
-        <label style="font-size: 1.2em; margin-right: 1px; ">状态：</label>
+        <label style="font-size: 1.2em; margin-right: 1px; ">Trạng thái：</label>
         <div class="field">
           <div class="ui fluid selection dropdown" id="select_status" style="width: 210px; ">
             <input type="hidden" name="status" value="<%= form.status %>">
             <i class="dropdown icon"></i>
             <div class="default text"></div>
             <div class="menu">
-              <div class="item" data-value=""><b>不限</b><i class="dropdown icon" style="visibility: hidden; "></i></div>
+              <div class="item" data-value=""><b>Tất cả</b><i class="dropdown icon" style="visibility: hidden; "></i></div>
               <% for (let status in this.icon) { %>
                 <% if (this.iconHidden.includes(status)) continue; %>
                 <div class="item" data-value="<%= status === 'Pending' ? 'Waiting' : status %>"><span class="status <%= status.toLowerCase().split(' ').join('_') %>"><i class="<%= this.icon[status] %> icon"></i> <b><%= status %></b></div>
@@ -64,12 +64,12 @@
       <% } %>
       <button class="ui labeled icon mini button" type="submit">
         <i class="search icon"></i>
-        查询
+        Tìm kiếm
       </button>
       <% if (user && displayConfig.showOthers) { %>
       <a class="ui mini labeled icon blue button" style="margin-left: auto; " id="my_submit">
         <i class="user icon"></i>
-        我的提交
+        Bài nộp của tôi
       </a>
       <script>
       $(function () {
@@ -85,15 +85,15 @@
   <table id="vueAppFuckSafari" class="ui very basic center aligned table" style="white-space: nowrap; " id="table">
     <thead>
       <tr>
-        <th>编号</th>
-        <th>题目</th>
-        <th>状态</th>
-        <th v-if="displayConfig.showScore">分数</th>
-        <th v-if="displayConfig.showUsage">总时间</th>
-        <th v-if="displayConfig.showUsage">内存</th>
-        <th v-if="displayConfig.showCode">代码 / 答案文件</th>
-        <th>提交者</th>
-        <th>提交时间</th>
+        <th>ID bài tập</th>
+        <th>Tên bài</th>
+        <th>Trạng thái</th>
+        <th v-if="displayConfig.showScore">Điểm</th>
+        <th v-if="displayConfig.showUsage">Thời gian</th>
+        <th v-if="displayConfig.showUsage">Bộ nhớ</th>
+        <th v-if="displayConfig.showCode">Ngôn ngữ / Độ dài code</th>
+        <th>Người nộp</th>
+        <th>Thời gian nộp</th>
       </tr>
     </thead>
     <tbody>
@@ -107,10 +107,10 @@
     <div class="ui icon header">
       <% if (isFiltered) { %>
       <i class="ui search icon" style="margin-bottom: 20px; "></i>
-      找不到符合条件的提交
+      Không tìm thấy bài nộp đủ điều kiện
       <% } else { %>
       <i class="ui file icon" style="margin-bottom: 20px; "></i>
-      暂无提交
+      Không có bài nộp
       <% } %>
     </div>
   </div>

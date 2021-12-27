@@ -45,8 +45,8 @@ app.post('/api/forget', async (req, res) => {
     const vurl = syzoj.utils.getCurrentLocation(req, true) + syzoj.utils.makeUrl(['api', 'forget_confirm'], { token: token });
     try {
       await Email.send(user.email,
-        `${user.username} 的 ${syzoj.config.title} 密码重置邮件`,
-        `<p>请点击该链接来重置密码：</p><p><a href="${vurl}">${vurl}</a></p><p>链接有效期为 12h。如果您不是 ${user.username}，请忽略此邮件。</p>`
+        `Email đặt lại mật khẩu ${user.username} của ${syzoj.config.title}`,
+        `<p>Vui lòng nhấp vào liên kết này để đặt lại mật khẩu của bạn：</p><p><a href="${vurl}">${vurl}</a></p><p>Liên kết có giá trị trong 12h. Nếu ${user.username} không phải bạn，hãy bỏ qua email này.</p>`
       );
     } catch (e) {
       return res.send({
@@ -95,8 +95,8 @@ app.post('/api/sign_up', async (req, res) => {
       const vurl = syzoj.utils.getCurrentLocation(req, true) + syzoj.utils.makeUrl(['api', 'sign_up_confirm'], { token: token });
       try {
         await Email.send(req.body.email,
-          `${req.body.username} 的 ${syzoj.config.title} 注册验证邮件`,
-          `<p>请点击该链接完成您在 ${syzoj.config.title} 的注册：</p><p><a href="${vurl}">${vurl}</a></p><p>如果您不是 ${req.body.username}，请忽略此邮件。</p>`
+          `Email xác minh đăng ký ${req.body.username} của ${syzoj.config.title}`,
+          `<p>Hãy nhấp vào liên kết để hoàn tất đăng ký của bạn trong ${syzoj.config.title}：</p><p><a href="${vurl}">${vurl}</a></p><p>Nếu ${req.body.username} không phải bạn，hãy bỏ qua email này.</p>`
         );
       } catch (e) {
         return res.send({
@@ -133,7 +133,7 @@ app.get('/api/forget_confirm', async (req, res) => {
     try {
       jwt.verify(req.query.token, syzoj.config.email_jwt_secret, { subject: 'forget' });
     } catch (e) {
-      throw new ErrorMessage("Token 不正确。");
+      throw new ErrorMessage("Token không đúng.");
     }
     res.render('forget_confirm', {
       token: req.query.token
@@ -157,7 +157,7 @@ app.post('/api/reset_password', async (req, res) => {
     }
 
     let syzoj2_xxx_md5 = '59cb65ba6f9ad18de0dcd12d5ae11bd2';
-    if (req.body.password === syzoj2_xxx_md5) throw new ErrorMessage('密码不能为空。');
+    if (req.body.password === syzoj2_xxx_md5) throw new ErrorMessage('Mật khẩu không được để trống.');
     const user = await User.findById(obj.userId);
     user.password = req.body.password;
     await user.save();
@@ -179,20 +179,20 @@ app.get('/api/sign_up_confirm', async (req, res) => {
     try {
       obj = jwt.verify(req.query.token, syzoj.config.email_jwt_secret, { subject: 'register' });
     } catch (e) {
-      throw new ErrorMessage('无效的注册验证链接: ' + e.toString());
+      throw new ErrorMessage('Liên kết xác minh đăng ký không hợp lệ: ' + e.toString());
     }
 
     let user = await User.fromName(obj.username);
-    if (user) throw new ErrorMessage('用户名已被占用。');
+    if (user) throw new ErrorMessage('Tên tài khoản đã được sử dụng.');
     user = await User.findOne({ where: { email: obj.email } });
-    if (user) throw new ErrorMessage('邮件地址已被占用。');
+    if (user) throw new ErrorMessage('Email đã được sử dụng.');
 
     // Because the salt is "syzoj2_xxx" and the "syzoj2_xxx" 's md5 is"59cb..."
     // the empty password 's md5 will equal "59cb.."
     let syzoj2_xxx_md5 = '59cb65ba6f9ad18de0dcd12d5ae11bd2';
-    if (obj.password === syzoj2_xxx_md5) throw new ErrorMessage('密码不能为空。');
-    if (!(obj.email = obj.email.trim())) throw new ErrorMessage('邮件地址不能为空。');
-    if (!syzoj.utils.isValidUsername(obj.username)) throw new ErrorMessage('用户名不合法。');
+    if (obj.password === syzoj2_xxx_md5) throw new ErrorMessage('Mật khẩu không được để trống.');
+    if (!(obj.email = obj.email.trim())) throw new ErrorMessage('Email không được để trống.');
+    if (!syzoj.utils.isValidUsername(obj.username)) throw new ErrorMessage('Tên tài khoản không hợp lệ.');
 
     user = await User.create({
       username: obj.username,
@@ -224,20 +224,20 @@ app.get('/api/sign_up/:token', async (req, res) => {
       let decrypted = syzoj.utils.decrypt(Buffer.from(req.params.token, 'base64'), syzoj.config.email_jwt_secret).toString();
       obj = JSON.parse(decrypted);
     } catch (e) {
-      throw new ErrorMessage('无效的注册验证链接。');
+      throw new ErrorMessage('Liên kết xác minh đăng ký không hợp lệ.');
     }
 
     let user = await User.fromName(obj.username);
-    if (user) throw new ErrorMessage('用户名已被占用。');
+    if (user) throw new ErrorMessage('Tên tài khoản đã được sử dụng.');
     user = await User.findOne({ where: { email: obj.email } });
-    if (user) throw new ErrorMessage('邮件地址已被占用。');
+    if (user) throw new ErrorMessage('Email đã được sử dụng.');
 
     // Because the salt is "syzoj2_xxx" and the "syzoj2_xxx" 's md5 is"59cb..."
     // the empty password 's md5 will equal "59cb.."
     let syzoj2_xxx_md5 = '59cb65ba6f9ad18de0dcd12d5ae11bd2';
-    if (obj.password === syzoj2_xxx_md5) throw new ErrorMessage('密码不能为空。');
-    if (!(obj.email = obj.email.trim())) throw new ErrorMessage('邮件地址不能为空。');
-    if (!syzoj.utils.isValidUsername(obj.username)) throw new ErrorMessage('用户名不合法。');
+    if (obj.password === syzoj2_xxx_md5) throw new ErrorMessage('Mật khẩu không được để trống.');
+    if (!(obj.email = obj.email.trim())) throw new ErrorMessage('Email không được để trống.');
+    if (!syzoj.utils.isValidUsername(obj.username)) throw new ErrorMessage('Tên tài khoản không hợp lệ.');
 
     user = await User.create({
       username: obj.username,

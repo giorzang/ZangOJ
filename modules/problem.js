@@ -17,7 +17,7 @@ app.get('/problems', async (req, res) => {
     const sort = req.query.sort || syzoj.config.sorting.problem.field;
     const order = req.query.order || syzoj.config.sorting.problem.order;
     if (!['id', 'title', 'rating', 'ac_num', 'submit_num', 'ac_rate', 'publicize_time'].includes(sort) || !['asc', 'desc'].includes(order)) {
-      throw new ErrorMessage('错误的排序参数。');
+      throw new ErrorMessage('Tham số sắp xếp không chính xác.');
     }
 
     let query = Problem.createQueryBuilder();
@@ -66,7 +66,7 @@ app.get('/problems/search', async (req, res) => {
     const sort = req.query.sort || syzoj.config.sorting.problem.field;
     const order = req.query.order || syzoj.config.sorting.problem.order;
     if (!['id', 'title', 'rating', 'ac_num', 'submit_num', 'ac_rate'].includes(sort) || !['asc', 'desc'].includes(order)) {
-      throw new ErrorMessage('错误的排序参数。');
+      throw new ErrorMessage('Tham số sắp xếp không chính xác.');
     }
 
     let query = Problem.createQueryBuilder();
@@ -130,7 +130,7 @@ app.get('/problems/tag/:tagIDs', async (req, res) => {
     const sort = req.query.sort || syzoj.config.sorting.problem.field;
     const order = req.query.order || syzoj.config.sorting.problem.order;
     if (!['id', 'title', 'rating', 'ac_num', 'submit_num', 'ac_rate'].includes(sort) || !['asc', 'desc'].includes(order)) {
-      throw new ErrorMessage('错误的排序参数。');
+      throw new ErrorMessage('Tham số sắp xếp không chính xác.');
     }
     let sortVal;
     if (sort === 'ac_rate') {
@@ -197,10 +197,10 @@ app.get('/problem/:id', async (req, res) => {
   try {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
-    if (!problem) throw new ErrorMessage('无此题目。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
     if (!await problem.isAllowedUseBy(res.locals.user)) {
-      throw new ErrorMessage('您没有权限进行此操作。');
+      throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
@@ -209,7 +209,7 @@ app.get('/problem/:id', async (req, res) => {
     if (problem.is_public || problem.allowedEdit) {
       await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
     } else {
-      throw new ErrorMessage('您没有权限进行此操作。');
+      throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     let state = await problem.getJudgeState(res.locals.user, false);
@@ -240,7 +240,7 @@ app.get('/problem/:id/export', async (req, res) => {
   try {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
-    if (!problem || !problem.is_public) throw new ErrorMessage('无此题目。');
+    if (!problem || !problem.is_public) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
     let obj = {
       title: problem.title,
@@ -276,7 +276,7 @@ app.get('/problem/:id/edit', async (req, res) => {
     let problem = await Problem.findById(id);
 
     if (!problem) {
-      if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+      if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
       problem = await Problem.create({
         time_limit: syzoj.config.default.problem.time_limit,
         memory_limit: syzoj.config.default.problem.memory_limit,
@@ -287,7 +287,7 @@ app.get('/problem/:id/edit', async (req, res) => {
       problem.tags = [];
       problem.new = true;
     } else {
-      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
       problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
       problem.tags = await problem.getTags();
     }
@@ -310,7 +310,7 @@ app.post('/problem/:id/edit', async (req, res) => {
     let id = parseInt(req.params.id) || 0;
     let problem = await Problem.findById(id);
     if (!problem) {
-      if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+      if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
       problem = await Problem.create({
         time_limit: syzoj.config.default.problem.time_limit,
@@ -321,7 +321,7 @@ app.post('/problem/:id/edit', async (req, res) => {
       if (await res.locals.user.hasPrivilege('manage_problem')) {
         let customID = parseInt(req.body.id);
         if (customID) {
-          if (await Problem.findById(customID)) throw new ErrorMessage('ID 已被使用。');
+          if (await Problem.findById(customID)) throw new ErrorMessage('ID đã được sử dụng.');
           problem.id = customID;
         } else if (id) problem.id = id;
       }
@@ -329,19 +329,19 @@ app.post('/problem/:id/edit', async (req, res) => {
       problem.user_id = res.locals.user.id;
       problem.publicizer_id = res.locals.user.id;
     } else {
-      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
+      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
       if (await res.locals.user.hasPrivilege('manage_problem')) {
         let customID = parseInt(req.body.id);
         if (customID && customID !== id) {
-          if (await Problem.findById(customID)) throw new ErrorMessage('ID 已被使用。');
+          if (await Problem.findById(customID)) throw new ErrorMessage('ID đã được sử dụng.');
           await problem.changeID(customID);
         }
       }
     }
 
-    if (!req.body.title.trim()) throw new ErrorMessage('题目名不能为空。');
+    if (!req.body.title.trim()) throw new ErrorMessage('Tên tiêu đề không được để trống.');
     problem.title = req.body.title;
     problem.description = req.body.description;
     problem.input_format = req.body.input_format;
@@ -377,7 +377,7 @@ app.get('/problem/:id/import', async (req, res) => {
     let problem = await Problem.findById(id);
 
     if (!problem) {
-      if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+      if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
       problem = await Problem.create({
         time_limit: syzoj.config.default.problem.time_limit,
@@ -389,8 +389,8 @@ app.get('/problem/:id/import', async (req, res) => {
       problem.user_id = res.locals.user.id;
       problem.publicizer_id = res.locals.user.id;
     } else {
-      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
+      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     problem.allowedManage = await problem.isAllowedManageBy(res.locals.user);
@@ -411,7 +411,7 @@ app.post('/problem/:id/import', async (req, res) => {
     let id = parseInt(req.params.id) || 0;
     let problem = await Problem.findById(id);
     if (!problem) {
-      if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+      if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
       problem = await Problem.create({
         time_limit: syzoj.config.default.problem.time_limit,
@@ -422,7 +422,7 @@ app.post('/problem/:id/import', async (req, res) => {
       if (await res.locals.user.hasPrivilege('manage_problem')) {
         let customID = parseInt(req.body.id);
         if (customID) {
-          if (await Problem.findById(customID)) throw new ErrorMessage('ID 已被使用。');
+          if (await Problem.findById(customID)) throw new ErrorMessage('ID đã được sử dụng.');
           problem.id = customID;
         } else if (id) problem.id = id;
       }
@@ -430,8 +430,8 @@ app.post('/problem/:id/import', async (req, res) => {
       problem.user_id = res.locals.user.id;
       problem.publicizer_id = res.locals.user.id;
     } else {
-      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
+      if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     let request = require('request-promise');
@@ -443,9 +443,9 @@ app.post('/problem/:id/import', async (req, res) => {
       json: true
     });
 
-    if (!json.success) throw new ErrorMessage('题目加载失败。', null, json.error);
+    if (!json.success) throw new ErrorMessage('Không tải được tiêu đề.', null, json.error);
 
-    if (!json.obj.title.trim()) throw new ErrorMessage('题目名不能为空。');
+    if (!json.obj.title.trim()) throw new ErrorMessage('Tên tiêu đề không được để trống.');
     problem.title = json.obj.title;
     problem.description = json.obj.description;
     problem.input_format = json.obj.input_format;
@@ -460,7 +460,7 @@ app.post('/problem/:id/import', async (req, res) => {
     if (json.obj.type) problem.type = json.obj.type;
 
     let validateMsg = await problem.validate();
-    if (validateMsg) throw new ErrorMessage('无效的题目数据配置。', null, validateMsg);
+    if (validateMsg) throw new ErrorMessage('Cấu hình dữ liệu tiêu đề không hợp lệ.', null, validateMsg);
 
     await problem.save();
 
@@ -499,8 +499,8 @@ app.get('/problem/:id/manage', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     await problem.loadRelationships();
 
@@ -523,8 +523,8 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     await problem.loadRelationships();
 
@@ -538,13 +538,13 @@ app.post('/problem/:id/manage', app.multer.fields([{ name: 'testdata', maxCount:
 
     if (problem.type === 'submit-answer' && req.body.type !== 'submit-answer' || problem.type !== 'submit-answer' && req.body.type === 'submit-answer') {
       if (await JudgeState.count({ problem_id: id }) !== 0) {
-        throw new ErrorMessage('已有提交的题目不允许在提交答案和非提交答案之间更改。');
+        throw new ErrorMessage('Các bài tập đã được nộp không được phép thay đổi giữa Nộp đáp án và Không nộp đáp án.');
       }
     }
     problem.type = req.body.type;
 
     let validateMsg = await problem.validate();
-    if (validateMsg) throw new ErrorMessage('无效的题目数据配置。', null, validateMsg);
+    if (validateMsg) throw new ErrorMessage('Cấu hình dữ liệu tiêu đề không hợp lệ.', null, validateMsg);
 
     if (req.files['testdata']) {
       await problem.updateTestdata(req.files['testdata'][0].path, await res.locals.user.hasPrivilege('manage_problem'));
@@ -570,10 +570,10 @@ async function setPublic(req, res, is_public) {
   try {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
-    if (!problem) throw new ErrorMessage('无此题目。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
     let allowedManage = await problem.isAllowedManageBy(res.locals.user);
-    if (!allowedManage) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!allowedManage) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     problem.is_public = is_public;
     problem.publicizer_id = res.locals.user.id;
@@ -605,9 +605,9 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     let problem = await Problem.findById(id);
     const curUser = res.locals.user;
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (problem.type !== 'submit-answer' && !syzoj.config.enabled_languages.includes(req.body.language)) throw new ErrorMessage('不支持该语言。');
-    if (!curUser) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': syzoj.utils.makeUrl(['problem', id]) }) });
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (problem.type !== 'submit-answer' && !syzoj.config.enabled_languages.includes(req.body.language)) throw new ErrorMessage('Không hỗ trợ ngôn ngữ này.');
+    if (!curUser) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': syzoj.utils.makeUrl(['problem', id]) }) });
 
     let judge_state;
     if (problem.type === 'submit-answer') {
@@ -617,19 +617,19 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
         try {
           path = await File.zipFiles(JSON.parse(req.body.answer_by_editor));
         } catch (e) {
-          throw new ErrorMessage('无法解析提交数据。');
+          throw new ErrorMessage('Không thể phân tích cú pháp dữ liệu đã nộp.');
         }
       } else {
-        if (req.files['answer'][0].size > syzoj.config.limit.submit_answer) throw new ErrorMessage('答案文件太大。');
+        if (req.files['answer'][0].size > syzoj.config.limit.submit_answer) throw new ErrorMessage('Tệp đáp án quá lớn.');
         path = req.files['answer'][0].path;
       }
 
       let file = await File.upload(path, 'answer');
       let size = await file.getUnzipSize();
 
-      if (size > syzoj.config.limit.submit_answer) throw new ErrorMessage('答案文件太大。');
+      if (size > syzoj.config.limit.submit_answer) throw new ErrorMessage('Tệp đáp án quá lớn.');
 
-      if (!file.md5) throw new ErrorMessage('上传答案文件失败。');
+      if (!file.md5) throw new ErrorMessage('Không tải lên được tệp đáp án.');
       judge_state = await JudgeState.create({
         submit_time: parseInt((new Date()).getTime() / 1000),
         status: 'Unknown',
@@ -644,10 +644,10 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     } else {
       let code;
       if (req.files['answer']) {
-        if (req.files['answer'][0].size > syzoj.config.limit.submit_code) throw new ErrorMessage('代码文件太大。');
+        if (req.files['answer'][0].size > syzoj.config.limit.submit_code) throw new ErrorMessage('Tệp code quá lớn.');
         code = (await fs.readFile(req.files['answer'][0].path)).toString();
       } else {
-        if (Buffer.from(req.body.code).length > syzoj.config.limit.submit_code) throw new ErrorMessage('代码太长。');
+        if (Buffer.from(req.body.code).length > syzoj.config.limit.submit_code) throw new ErrorMessage('Code quá dài');
         code = req.body.code;
       }
 
@@ -668,17 +668,17 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     let contest;
     if (contest_id) {
       contest = await Contest.findById(contest_id);
-      if (!contest) throw new ErrorMessage('无此比赛。');
-      if ((!contest.isRunning()) && (!await contest.isSupervisior(curUser))) throw new ErrorMessage('比赛未开始或已结束。');
+      if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy');
+      if ((!contest.isRunning()) && (!await contest.isSupervisior(curUser))) throw new ErrorMessage('Cuộc thi chưa bắt đầu hoặc đã kết thúc.');
       let problems_id = await contest.getProblems();
-      if (!problems_id.includes(id)) throw new ErrorMessage('无此题目。');
+      if (!problems_id.includes(id)) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
       judge_state.type = 1;
       judge_state.type_info = contest_id;
 
       await judge_state.save();
     } else {
-      if (!await problem.isAllowedUseBy(curUser)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(curUser)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
       judge_state.type = 0;
       await judge_state.save();
     }
@@ -713,7 +713,7 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       judge_state.status = 'Waiting';
       await judge_state.save();
     } catch (err) {
-      throw new ErrorMessage(`无法开始评测：${err.toString()}`);
+      throw new ErrorMessage(`Không thể bắt đầu đánh giá：${err.toString()}`);
     }
 
     if (contest && (!await contest.isSupervisior(curUser))) {
@@ -733,9 +733,9 @@ app.post('/problem/:id/delete', async (req, res) => {
   try {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
-    if (!problem) throw new ErrorMessage('无此题目。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
-    if (!await problem.isAllowedManageBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await problem.isAllowedManageBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     await problem.delete();
 
@@ -753,8 +753,8 @@ app.get('/problem/:id/testdata', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     let testdata = await problem.listTestdata();
     let testcases = await syzoj.utils.parseTestdata(problem.getTestdataPath(), problem.type === 'submit-answer');
@@ -780,8 +780,8 @@ app.post('/problem/:id/testdata/upload', app.multer.array('file'), async (req, r
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     if (req.files) {
       for (let file of req.files) {
@@ -803,9 +803,9 @@ app.post('/problem/:id/testdata/delete/:filename', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-    if (typeof req.params.filename === 'string' && (req.params.filename.includes('../'))) throw new ErrorMessage('您没有权限进行此操作。)');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
+    if (typeof req.params.filename === 'string' && (req.params.filename.includes('../'))) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.)');
     
     await problem.deleteTestdataSingleFile(req.params.filename);
 
@@ -837,9 +837,9 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-    if (typeof req.params.filename === 'string' && (req.params.filename.includes('../'))) throw new ErrorMessage('您没有权限进行此操作。)');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
+    if (typeof req.params.filename === 'string' && (req.params.filename.includes('../'))) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.)');
 
     if (!req.params.filename) {
       if (!await syzoj.utils.isFile(problem.getTestdataArchivePath())) {
@@ -849,7 +849,7 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
 
     let path = require('path');
     let filename = req.params.filename ? path.join(problem.getTestdataPath(), req.params.filename) : (problem.getTestdataArchivePath());
-    if (!await syzoj.utils.isFile(filename)) throw new ErrorMessage('文件不存在。');
+    if (!await syzoj.utils.isFile(filename)) throw new ErrorMessage('Tệp không tồn tại.');
 
     downloadOrRedirect(req, res, filename, path.basename(filename));
   } catch (e) {
@@ -866,23 +866,23 @@ app.get('/problem/:id/download/additional_file', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
 
     // XXX: Reduce duplication (see the '/problem/:id/submit' handler)
     let contest_id = parseInt(req.query.contest_id);
     if (contest_id) {
       let contest = await Contest.findById(contest_id);
-      if (!contest) throw new ErrorMessage('无此比赛。');
-      if (!contest.isRunning()) throw new ErrorMessage('比赛未开始或已结束。');
+      if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy');
+      if (!contest.isRunning()) throw new ErrorMessage('Cuộc thi chưa bắt đầu hoặc đã kết thúc.');
       let problems_id = await contest.getProblems();
-      if (!problems_id.includes(id)) throw new ErrorMessage('无此题目。');
+      if (!problems_id.includes(id)) throw new ErrorMessage('Không có bài tập nào như vậy.');
     } else {
-      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     await problem.loadRelationships();
 
-    if (!problem.additional_file) throw new ErrorMessage('无附加文件。');
+    if (!problem.additional_file) throw new ErrorMessage('Không có tệp bổ sung.');
 
     downloadOrRedirect(req, res, problem.additional_file.getPath(), `additional_file_${id}.zip`);
   } catch (e) {
@@ -899,11 +899,11 @@ app.get('/problem/:id/statistics/:type', async (req, res) => {
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     let count = await problem.countStatistics(req.params.type);
-    if (count === null) throw new ErrorMessage('无此统计类型。');
+    if (count === null) throw new ErrorMessage('Không có thống kê nào như vậy.');
 
     let paginate = syzoj.utils.paginate(count, req.query.page, syzoj.config.page.problem_statistics);
     let statistics = await problem.getStatistics(req.params.type, paginate);
@@ -929,9 +929,9 @@ app.post('/problem/:id/custom-test', app.multer.fields([{ name: 'code_upload', m
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
-    if (!problem) throw new ErrorMessage('无此题目。');
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': syzoj.utils.makeUrl(['problem', id]) }) });
-    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như vậy.');
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': syzoj.utils.makeUrl(['problem', id]) }) });
+    if (!await problem.isAllowedUseBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     let filepath;
     if (req.files['input_file']) {

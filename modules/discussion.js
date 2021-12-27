@@ -46,9 +46,9 @@ app.get('/discussion/problem/:pid', async (req, res) => {
   try {
     let pid = parseInt(req.params.pid);
     let problem = await Problem.findById(pid);
-    if (!problem) throw new ErrorMessage('无此题目。');
+    if (!problem) throw new ErrorMessage('Không có bài tập nào như này');
     if (!await problem.isAllowedUseBy(res.locals.user)) {
-      throw new ErrorMessage('您没有权限进行此操作。');
+      throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     let where = { problem_id: pid };
@@ -77,7 +77,7 @@ app.get('/article/:id', async (req, res) => {
   try {
     let id = parseInt(req.params.id);
     let article = await Article.findById(id);
-    if (!article) throw new ErrorMessage('无此帖子。');
+    if (!article) throw new ErrorMessage('Không có bài đăng này.');
 
     await article.loadRelationships();
     article.allowedEdit = await article.isAllowedEditBy(res.locals.user);
@@ -102,7 +102,7 @@ app.get('/article/:id', async (req, res) => {
     if (article.problem_id) {
       problem = await Problem.findById(article.problem_id);
       if (!await problem.isAllowedUseBy(res.locals.user)) {
-        throw new ErrorMessage('您没有权限进行此操作。');
+        throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
       }
     }
 
@@ -123,7 +123,7 @@ app.get('/article/:id', async (req, res) => {
 
 app.get('/article/:id/edit', async (req, res) => {
   try {
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
     let id = parseInt(req.params.id);
     let article = await Article.findById(id);
@@ -149,7 +149,7 @@ app.get('/article/:id/edit', async (req, res) => {
 
 app.post('/article/:id/edit', async (req, res) => {
   try {
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
     let id = parseInt(req.params.id);
     let article = await Article.findById(id);
@@ -162,16 +162,16 @@ app.post('/article/:id/edit', async (req, res) => {
 
       if (req.query.problem_id) {
         let problem = await Problem.findById(req.query.problem_id);
-        if (!problem) throw new ErrorMessage('无此题目。');
+        if (!problem) throw new ErrorMessage('Không có bài tập nào như này');
         article.problem_id = problem.id;
       } else {
         article.problem_id = null;
       }
     } else {
-      if (!await article.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await article.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
-    if (!req.body.title.trim()) throw new ErrorMessage('标题不能为空。');
+    if (!req.body.title.trim()) throw new ErrorMessage('Tiêu đề không được để trống.');
     article.title = req.body.title;
     article.content = req.body.content;
     article.update_time = time;
@@ -190,15 +190,15 @@ app.post('/article/:id/edit', async (req, res) => {
 
 app.post('/article/:id/delete', async (req, res) => {
   try {
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
     let id = parseInt(req.params.id);
     let article = await Article.findById(id);
 
     if (!article) {
-      throw new ErrorMessage('无此帖子。');
+      throw new ErrorMessage('Không có bài đăng này.');
     } else {
-      if (!await article.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await article.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     await Promise.all((await ArticleComment.find({
@@ -218,15 +218,15 @@ app.post('/article/:id/delete', async (req, res) => {
 
 app.post('/article/:id/comment', async (req, res) => {
   try {
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
     let id = parseInt(req.params.id);
     let article = await Article.findById(id);
 
     if (!article) {
-      throw new ErrorMessage('无此帖子。');
+      throw new ErrorMessage('Không có bài đăng này.');
     } else {
-      if (!await article.isAllowedCommentBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await article.isAllowedCommentBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     let comment = await ArticleComment.create({
@@ -251,15 +251,15 @@ app.post('/article/:id/comment', async (req, res) => {
 
 app.post('/article/:article_id/comment/:id/delete', async (req, res) => {
   try {
-    if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
+    if (!res.locals.user) throw new ErrorMessage('Đăng nhập để tiếp tục.', { 'Đăng nhập': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
 
     let id = parseInt(req.params.id);
     let comment = await ArticleComment.findById(id);
 
     if (!comment) {
-      throw new ErrorMessage('无此评论。');
+      throw new ErrorMessage('Không có bình luận như vậy.');
     } else {
-      if (!await comment.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await comment.isAllowedEditBy(res.locals.user)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
     }
 
     const article = await Article.findById(comment.article_id);

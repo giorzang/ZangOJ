@@ -5,9 +5,9 @@ this.adminPage = 'links';
 <table class="ui center aligned celled table">
 <thead>
   <tr>
-    <th>名称</th>
-    <th>链接</th>
-    <th width="50px">删除</th>
+    <th>Tên</th>
+    <th>Đường dẫn liên kết</th>
+    <th width="50px">Xóa</th>
   </tr>
 </thead>
 
@@ -21,19 +21,19 @@ this.adminPage = 'links';
         <div class="ui basic modal" id="modal-remove-<%= i %>">
           <div class="ui icon header">
             <i class="remove icon"></i>
-            <p style="margin-top: 15px; ">删除友链</p>
+            <p style="margin-top: 15px; ">Xóa liên kết</p>
           </div>
           <div class="content" style="text-align: center; ">
-            <p>确认删除该友链吗？</p>
+            <p>Bạn có chắc chắn muốn xóa liên kết này không?</p>
           </div>
           <div class="actions">
             <div class="ui red basic cancel inverted button">
               <i class="remove icon"></i>
-              否
+              Không
             </div>
             <a class="ui green ok inverted button remove_link" data-id="<%= i %>">
               <i class="checkmark icon"></i>
-              是
+              Có
             </a>
           </div>
         </div>
@@ -46,15 +46,15 @@ this.adminPage = 'links';
 <div class="ui form">
   <div class="two fields">
     <div class="field">
-      <label>名称</label>
+      <label>Tên</label>
       <input type="text" id="add_title">
     </div>
     <div class="field">
-      <label>链接</label>
+      <label>Đường dẫn liên kết</label>
       <input type="text" id="add_url">
     </div>
   </div>
-  <div style="text-align: center; "><div id="add_button" class="ui submit blue labeled icon button"><i class="ui add icon"></i>添加</a></div>
+  <div style="text-align: center; "><div id="add_button" class="ui submit blue labeled icon button"><i class="ui add icon"></i>Thêm</a></div>
 </div>
 
 <form method="post" id="submit_form">

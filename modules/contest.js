@@ -40,13 +40,13 @@ app.get('/contest/:id/edit', async (req, res) => {
     let contest = await Contest.findById(contest_id);
     if (!contest) {
       // if contest does not exist, only system administrators can create one
-      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
       contest = await Contest.create();
       contest.id = 0;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
-      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
       await contest.loadRelationships();
     }
@@ -76,7 +76,7 @@ app.post('/contest/:id/edit', async (req, res) => {
     let ranklist = null;
     if (!contest) {
       // if contest does not exist, only system administrators can create one
-      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
       contest = await Contest.create();
 
@@ -85,11 +85,11 @@ app.post('/contest/:id/edit', async (req, res) => {
       ranklist = await ContestRanklist.create();
 
       // Only new contest can be set type
-      if (!['noi', 'ioi', 'acm'].includes(req.body.type)) throw new ErrorMessage('无效的赛制。');
+      if (!['noi', 'ioi', 'acm'].includes(req.body.type)) throw new ErrorMessage('Định dạng không hợp lệ.');
       contest.type = req.body.type;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
-      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
       
       await contest.loadRelationships();
       ranklist = contest.ranklist;
@@ -103,7 +103,7 @@ app.post('/contest/:id/edit', async (req, res) => {
     await ranklist.save();
     contest.ranklist_id = ranklist.id;
 
-    if (!req.body.title.trim()) throw new ErrorMessage('比赛名不能为空。');
+    if (!req.body.title.trim()) throw new ErrorMessage('Tên cuộc thi không được để trống.');
     contest.title = req.body.title;
     contest.subtitle = req.body.subtitle;
     if (!Array.isArray(req.body.problems)) req.body.problems = [req.body.problems];
@@ -133,12 +133,12 @@ app.get('/contest/:id', async (req, res) => {
     let contest_id = parseInt(req.params.id);
 
     let contest = await Contest.findById(contest_id);
-    if (!contest) throw new ErrorMessage('无此比赛。');
+    if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy.');
 
     const isSupervisior = await contest.isSupervisior(curUser);
 
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('Cuộc thi chưa mở，hãy kiên nhẫn đợi (´∀ `)');
 
     contest.running = contest.isRunning();
     contest.ended = contest.isEnded();
@@ -240,14 +240,14 @@ app.get('/contest/:id/ranklist', async (req, res) => {
     let contest = await Contest.findById(contest_id);
     const curUser = res.locals.user;
 
-    if (!contest) throw new ErrorMessage('无此比赛。');
+    if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy.');
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('Cuộc thi chưa mở，hãy kiên nhẫn đợi (´∀ `)');
 
     if ([contest.allowedSeeingResult() && contest.allowedSeeingOthers(),
     contest.isEnded(),
     await contest.isSupervisior(curUser)].every(x => !x))
-      throw new ErrorMessage('您没有权限进行此操作。');
+      throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     await contest.loadRelationships();
 
@@ -315,7 +315,7 @@ app.get('/contest/:id/submissions', async (req, res) => {
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('Cuộc thi chưa mở，hãy kiên nhẫn đợi (´∀ `)');
 
     if (contest.isEnded()) {
       res.redirect(syzoj.utils.makeUrl(['submissions'], { contest: contest_id }));
@@ -339,7 +339,7 @@ app.get('/contest/:id/submissions', async (req, res) => {
     } else {
       if (curUser == null || // Not logined
         (user && user.id !== curUser.id)) { // Not querying himself
-        throw new ErrorMessage("您没有权限执行此操作。");
+        throw new ErrorMessage("Bạn không có quyền thực hiện thao tác này.");
       }
       query.andWhere('user_id = :user_id', { user_id: curUser.id });
       isFiltered = true;
@@ -442,9 +442,9 @@ app.get('/contest/submission/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const judge = await JudgeState.findById(id);
-    if (!judge) throw new ErrorMessage("提交记录 ID 不正确。");
+    if (!judge) throw new ErrorMessage("ID bài nộp không chính xác.");
     const curUser = res.locals.user;
-    if ((!curUser) || judge.user_id !== curUser.id) throw new ErrorMessage("您没有权限执行此操作。");
+    if ((!curUser) || judge.user_id !== curUser.id) throw new ErrorMessage("Bạn không có quyền thực hiện thao tác này.");
 
     if (judge.type !== 1) {
       return res.redirect(syzoj.utils.makeUrl(['submission', id]));
@@ -493,13 +493,13 @@ app.get('/contest/:id/problem/:pid', async (req, res) => {
   try {
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
-    if (!contest) throw new ErrorMessage('无此比赛。');
+    if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy.');
     const curUser = res.locals.user;
 
     let problems_id = await contest.getProblems();
 
     let pid = parseInt(req.params.pid);
-    if (!pid || pid < 1 || pid > problems_id.length) throw new ErrorMessage('无此题目。');
+    if (!pid || pid < 1 || pid > problems_id.length) throw new ErrorMessage('Không có bài tập nào như này');
 
     let problem_id = problems_id[pid - 1];
     let problem = await Problem.findById(problem_id);
@@ -510,7 +510,7 @@ app.get('/contest/:id/problem/:pid', async (req, res) => {
       if (await problem.isAllowedUseBy(res.locals.user)) {
         return res.redirect(syzoj.utils.makeUrl(['problem', problem_id]));
       }
-      throw new ErrorMessage('比赛尚未开始。');
+      throw new ErrorMessage('Cuộc thi chưa bắt đầu');
     }
 
     problem.specialJudge = await problem.hasSpecialJudge();
@@ -542,12 +542,12 @@ app.get('/contest/:id/:pid/download/additional_file', async (req, res) => {
   try {
     let id = parseInt(req.params.id);
     let contest = await Contest.findById(id);
-    if (!contest) throw new ErrorMessage('无此比赛。');
+    if (!contest) throw new ErrorMessage('Không có cuộc thi nào như vậy.');
 
     let problems_id = await contest.getProblems();
 
     let pid = parseInt(req.params.pid);
-    if (!pid || pid < 1 || pid > problems_id.length) throw new ErrorMessage('无此题目。');
+    if (!pid || pid < 1 || pid > problems_id.length) throw new ErrorMessage('Không có bài tập nào như này');
 
     let problem_id = problems_id[pid - 1];
     let problem = await Problem.findById(problem_id);
@@ -557,12 +557,12 @@ app.get('/contest/:id/:pid/download/additional_file', async (req, res) => {
       if (await problem.isAllowedUseBy(res.locals.user)) {
         return res.redirect(syzoj.utils.makeUrl(['problem', problem_id, 'download', 'additional_file']));
       }
-      throw new ErrorMessage('比赛尚未开始。');
+      throw new ErrorMessage('Cuộc thi chưa bắt đầu');
     }
 
     await problem.loadRelationships();
 
-    if (!problem.additional_file) throw new ErrorMessage('无附加文件。');
+    if (!problem.additional_file) throw new ErrorMessage('Không có tệp bổ sung.');
 
     res.download(problem.additional_file.getPath(), `additional_file_${id}_${pid}.zip`);
   } catch (e) {

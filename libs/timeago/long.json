@@ -1,53 +1,53 @@
 {
 	"year": {
-		"previous": "去年",
-		"current": "今年",
-		"next": "明年",
-		"past": "{0} 年前",
-		"future": "{0} 年后"
+		"previous": "Năm ngoái",
+		"current": "Năm nay",
+		"next": "Năm sau",
+		"past": "{0} năm trước",
+		"future": "{0} năm sau"
 	},
 	"quarter": {
-		"previous": "上季度",
-		"current": "本季度",
-		"next": "下季度",
-		"past": "{0} 个季度前",
-		"future": "{0} 个季度后"
+		"previous": "Quý trước",
+		"current": "Quý này",
+		"next": "Quý sau",
+		"past": "{0} quý trước",
+		"future": "{0} quý sau"
 	},
 	"month": {
-		"previous": "上个月",
-		"current": "本月",
-		"next": "下个月",
-		"past": "{0} 个月前",
-		"future": "{0} 个月后"
+		"previous": "Tháng trước",
+		"current": "Tháng này",
+		"next": "Tháng sau",
+		"past": "{0} tháng trước",
+		"future": "{0} tháng sau"
 	},
 	"week": {
-		"previous": "上周",
-		"current": "本周",
-		"next": "下周",
-		"past": "{0} 周前",
-		"future": "{0} 周后"
+		"previous": "Tuần trước",
+		"current": "Tuần này",
+		"next": "Tuần sau",
+		"past": "{0} tuần trước",
+		"future": "{0} tuần sau"
 	},
 	"day": {
-		"previous": "昨天",
-		"current": "今天",
-		"next": "明天",
-		"past": "{0} 天前",
-		"future": "{0} 天后"
+		"previous": "Hôm qua",
+		"current": "Hôm nay",
+		"next": "Ngày mai",
+		"past": "{0} ngày trước",
+		"future": "{0} ngày sau"
 	},
 	"hour": {
-		"current": "这一时间 / 此时",
-		"past": "{0} 小时前",
-		"future": "{0} 小时后"
+		"current": "Bây giờ",
+		"past": "{0} giờ trước",
+		"future": "{0} giờ sau"
 	},
 	"minute": {
-		"current": "此刻",
-		"past": "{0} 分钟前",
-		"future": "{0} 分钟后"
+		"current": "Lúc này",
+		"past": "{0} phút trước",
+		"future": "{0} phút sau"
 	},
 	"second": {
-		"current": "现在",
-		"past": "{0} 秒钟前",
-		"future": "{0} 秒钟后"
+		"current": "Vừa xong",
+		"past": "{0} giây trước",
+		"future": "{0} giây sau"
 	},
-	"now": "现在"
+	"now": "Hiện tại"
 }

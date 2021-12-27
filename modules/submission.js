@@ -51,7 +51,7 @@ app.get('/submissions', async (req, res) => {
         query.andWhere('type_info = :type_info', { type_info: contestId });
         inContest = true;
       } else {
-        throw new Error("您暂时无权查看此比赛的详细评测信息。");
+        throw new Error("Bạn tạm thời không có quyền xem thông tin đánh giá chi tiết của cuộc thi này.");
       }
     }
 
@@ -88,12 +88,12 @@ app.get('/submissions', async (req, res) => {
         let problem_id = parseInt(req.query.problem_id);
         let problem = await Problem.findById(problem_id);
         if (!problem)
-          throw new ErrorMessage("无此题目。");
+          throw new ErrorMessage("Không có bài tập nào như vậy");
         if (await problem.isAllowedUseBy(res.locals.user)) {
           query.andWhere('problem_id = :problem_id', { problem_id: parseInt(req.query.problem_id) || 0 });
           isFiltered = true;
         } else {
-          throw new ErrorMessage("您没有权限进行此操作。");
+          throw new ErrorMessage("Bạn không có quyền thực hiện thao tác này.");
         }
       } else {
         query.andWhere('is_public = true');
@@ -155,9 +155,9 @@ app.get('/submission/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const judge = await JudgeState.findById(id);
-    if (!judge) throw new ErrorMessage("提交记录 ID 不正确。");
+    if (!judge) throw new ErrorMessage("ID bài nộp không chính xác.");
     const curUser = res.locals.user;
-    if (!await judge.isAllowedVisitBy(curUser)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await judge.isAllowedVisitBy(curUser)) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     let contest;
     if (judge.type === 1) {
@@ -166,7 +166,7 @@ app.get('/submission/:id', async (req, res) => {
 
       if ((!contest.ended || !contest.is_public) &&
         !(await judge.problem.isAllowedEditBy(res.locals.user) || await contest.isSupervisior(curUser))) {
-        throw new Error("比赛未结束或未公开。");
+        throw new Error("Cuộc thi chưa kết thúc hoặc không được tiết lộ.");
       }
     }
 
@@ -216,12 +216,12 @@ app.post('/submission/:id/rejudge', async (req, res) => {
     let id = parseInt(req.params.id);
     let judge = await JudgeState.findById(id);
 
-    if (judge.pending && !(res.locals.user && await res.locals.user.hasPrivilege('manage_problem'))) throw new ErrorMessage('无法重新评测一个评测中的提交。');
+    if (judge.pending && !(res.locals.user && await res.locals.user.hasPrivilege('manage_problem'))) throw new ErrorMessage('Không thể đánh giá lại một bài nộp trong phần Đánh giá');
 
     await judge.loadRelationships();
 
     let allowedRejudge = await judge.problem.isAllowedEditBy(res.locals.user);
-    if (!allowedRejudge) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!allowedRejudge) throw new ErrorMessage('Bạn không có quyền thực hiện thao tác này.');
 
     await judge.rejudge();
 
